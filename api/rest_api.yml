@@ -1,0 +1,182 @@
+openapi: 3.0.4
+info:
+  title: Social Network System Design
+  description: API for the System Design course social network
+  version: 1.0.12
+
+
+tags:
+  - name: post
+  - name: media
+  - name: feed
+  - name: place
+  - name: user
+    description: Operations about user
+paths:
+  /media:
+    post:
+      summary: Post a photo
+      tags:
+        - media
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: OK, return guid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  guid:
+                    type: string
+                    description: guid of the photo
+                    format: uuid
+                required:
+                  - guid
+        '413':
+          description: Photo is too large (more than 1 Mb)
+        '500':
+          description: Server Error
+  /media/{media_guid}:
+    get:
+      summary: Get a photo
+      tags:
+        - media
+      parameters:
+        - name: media_guid
+          in: path
+          description: ID of photo to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Media not found
+        '500':
+          description: Server Error
+  
+  /post/{post_guid}:
+    get:
+      summary: Get a post
+      tags:
+        - post
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of photo to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  guid:
+                    type: string
+                    description: guid of the post
+                    format: uuid
+                  text:
+                    type: string
+                    description: Text
+                  media:
+                    description: guids of media
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+                  place:
+                    type: string
+                    description: guid of the place
+                    format: uuid
+                required:
+                  - guid
+                  - text
+        '404':
+          description: Post not found
+        '500':
+          description: Server Error
+    delete:
+      summary: Delete a post
+      tags:
+        - post
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of photo to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Post not found
+        '500':
+          description: Server Error
+  /post:
+    post:
+      summary: Make a post
+      tags:
+        - post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  text:
+                    type: string
+                    description: Text
+                  media:
+                    description: guids of media
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+                  place:
+                    type: string
+                    description: guid of the place
+                    format: uuid
+              required:
+                - text
+      responses:
+        '200':
+          description: OK, return guid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  guid:
+                    type: string
+                    description: guid of the photo
+                    format: uuid
+                required:
+                  - guid
+        '404':
+          description: Place or media not found
+        '413':
+          description: Text it too long
+        '500':
+          description: Server Error
