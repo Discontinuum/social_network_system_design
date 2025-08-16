@@ -519,4 +519,50 @@ paths:
         '404':
           description: Post not found
         '500':
-          description: Server Error          
+          description: Server Error 
+  
+  /subscription:
+    post:
+      summary: Subscribe to user's posts
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  user_guid:
+                    type: string
+                    description: User we want to follow
+                    format: uuid
+              required:
+                - user_guid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: User not found
+        '500':
+          description: Server Error
+        
+  /subscription/{user_guid}:
+    delete:
+      summary: Unsubscribe to user's posts
+      tags:
+        - user
+      parameters:
+        - name: user_guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: User not found
+        '500':
+          description: Server Error
