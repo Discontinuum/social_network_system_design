@@ -10,6 +10,7 @@ tags:
   - name: media
   - name: feed
   - name: place
+  - name: comment
   - name: user
     description: Operations about user
 paths:
@@ -77,7 +78,7 @@ paths:
       parameters:
         - name: post_guid
           in: path
-          description: ID of photo to return
+          description: ID of post to return
           required: true
           schema:
             type: string
@@ -94,6 +95,10 @@ paths:
                     type: string
                     description: guid of the post
                     format: uuid
+                  author:
+                    type: string
+                    description: author's guid
+                    format: uuid
                   text:
                     type: string
                     description: Text
@@ -109,6 +114,7 @@ paths:
                     format: uuid
                 required:
                   - guid
+                  - author
                   - text
         '404':
           description: Post not found
@@ -180,3 +186,159 @@ paths:
           description: Text it too long
         '500':
           description: Server Error
+
+  /post/comments/{post_guid}:
+    get:
+      summary: Get a post's comments
+      tags:
+        - post
+        - comment
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of post to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        author:
+                          type: string
+                          description: author's guid
+                          format: uuid
+                        guid:
+                          type: string
+                          format: uuid
+                          description: guid of comment
+                        comment:
+                          type: string
+                          description: text of comment
+                required:
+                  - guid
+                  - text
+                  - author
+        '404':
+          description: Post not found
+        '500':
+          description: Server Error
+  /comment:
+    post:
+      summary: Make a comment
+      tags:
+        - comment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  comment:
+                    type: string
+                    description: text of comment
+                  post_guid:
+                    type: string
+                    description: which post we comment
+                    format: uuid
+              required:
+                - comment
+                - post_guid
+      responses:
+        '200':
+          description: OK, return guid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  guid:
+                    type: string
+                    description: guid of the comment
+                    format: uuid
+                required:
+                  - guid
+        '404':
+          description: Post not found
+        '413':
+          description: Text is too large
+        '500':
+          description: Server Error
+          
+  /feed/{user_guid}:
+    get:
+      summary: Fetch feed for user
+      tags:
+        - feed
+      parameters:
+        - name: user_guid
+          in: path
+          description: ID of post to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: offset
+          in: query
+          description: from which post to begin
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: how many posts to fetch
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    type: object
+                    properties:
+                      guid:
+                        type: string
+                        description: guid of the post
+                        format: uuid
+                      author:
+                        type: string
+                        description: author's guid
+                        format: uuid
+                      text:
+                        type: string
+                        description: Text
+                      media:
+                        description: guids of media
+                        type: array
+                        items:
+                          type: string
+                          format: uuid
+                      place:
+                        type: string
+                        description: guid of the place
+                        format: uuid
+                    required:
+                      - guid
+                      - author
+                      - text
+        '401':
+          description: Incorrect offset or length
+        '404':
+          description: User not found
+        '500':
+          description: Server Error          
+          
+          
