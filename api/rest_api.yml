@@ -11,6 +11,7 @@ tags:
   - name: feed
   - name: place
   - name: comment
+  - name: react
   - name: user
     description: Operations about user
 paths:
@@ -196,7 +197,7 @@ paths:
       parameters:
         - name: post_guid
           in: path
-          description: ID of post to return
+          description: ID of post
           required: true
           schema:
             type: string
@@ -225,10 +226,10 @@ paths:
                         comment:
                           type: string
                           description: text of comment
-                required:
-                  - guid
-                  - text
-                  - author
+                      required:
+                        - guid
+                        - text
+                        - author
         '404':
           description: Post not found
         '500':
@@ -342,7 +343,7 @@ paths:
 
   /place:
     get:
-      summary: Get places
+      summary: Get places sorted by popularity
       tags:
         - place
       parameters:
@@ -374,6 +375,9 @@ paths:
                         type: string
                         description: name of the place
                         format: uuid
+                      posts:
+                        type: integer
+                        description: how many posts about this place
                     required:
                       - guid
                       - name
@@ -444,5 +448,75 @@ paths:
           description: Incorrect offset or length
         '404':
           description: Place not found
+        '500':
+          description: Server Error          
+          
+  /post/reacts/{post_guid}:
+    get:
+      summary: Get a post's reacts
+      tags:
+        - post
+        - react
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reacts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        react_guid:
+                          type: string
+                          format: uuid
+                          description: guid of react
+                        count:
+                          type: integer
+                          description: how many time this react was used
+                      required:
+                        - react_guid
+                        - count
+        '404':
+          description: Post not found
+        '500':
+          description: Server Error
+  /react:
+    post:
+      summary: Make a react
+      tags:
+        - react
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  react_guid:
+                    type: string
+                    format: uuid
+                  post_guid:
+                    type: string
+                    format: uuid
+              required:
+                - react_guid
+                - post_guid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Post not found
         '500':
           description: Server Error          
