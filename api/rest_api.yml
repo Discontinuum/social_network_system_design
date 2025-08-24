@@ -177,6 +177,16 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: offset
+          in: query
+          description: from which comment to begin
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: how many comments to fetch
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
@@ -205,6 +215,8 @@ paths:
                         - guid
                         - text
                         - author
+        '401':
+          description: Incorrect offset or length
         '404':
           description: Post not found
         '500':
@@ -426,9 +438,9 @@ paths:
         '500':
           description: Server Error          
           
-  /posts/reacts/{post_guid}:
+  /posts/reactions/{post_guid}:
     get:
-      summary: Get a post's reacts
+      summary: Get a post's reactions
       tags:
         - post
         - react
@@ -439,7 +451,17 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
+            format: uuid        
+        - name: offset
+          in: query
+          description: from which comment to begin
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: how many comments to fetch
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
@@ -463,6 +485,8 @@ paths:
                       required:
                         - react_guid
                         - count
+        '401':
+          description: Incorrect offset or length
         '404':
           description: Post not found
         '500':
