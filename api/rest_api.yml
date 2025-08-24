@@ -35,39 +35,14 @@ paths:
               schema:
                 type: object
                 properties:
-                  guid:
+                  uri:
                     type: string
-                    description: guid of the photo
-                    format: uuid
+                    description: uri of the photo in the storage
+                    format: uri
                 required:
-                  - guid
+                  - uri
         '413':
           description: Photo is too large (more than 1 Mb)
-        '500':
-          description: Server Error
-  /media/{media_guid}:
-    get:
-      summary: Get a photo
-      tags:
-        - media
-      parameters:
-        - name: media_guid
-          in: path
-          description: ID of photo to return
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: OK
-          content:
-            image/jpeg:
-              schema:
-                type: string
-                format: binary
-        '404':
-          description: Media not found
         '500':
           description: Server Error
   
@@ -104,11 +79,11 @@ paths:
                     type: string
                     description: Text
                   media:
-                    description: guids of media
+                    description: uris of media
                     type: array
                     items:
                       type: string
-                      format: uuid
+                      format: uri
                   place:
                     type: string
                     description: guid of the place
@@ -156,11 +131,11 @@ paths:
                     type: string
                     description: Text
                   media:
-                    description: guids of media
+                    description: uris of media
                     type: array
                     items:
                       type: string
-                      format: uuid
+                      format: uri
                   place:
                     type: string
                     description: guid of the place
@@ -177,14 +152,14 @@ paths:
                 properties:
                   guid:
                     type: string
-                    description: guid of the photo
+                    description: guid of the post
                     format: uuid
                 required:
                   - guid
         '404':
           description: Place or media not found
         '413':
-          description: Text it too long
+          description: Text is too long
         '500':
           description: Server Error
 
@@ -321,11 +296,11 @@ paths:
                         type: string
                         description: Text
                       media:
-                        description: guids of media
+                        description: uris of media
                         type: array
                         items:
                           type: string
-                          format: uuid
+                          format: uri
                       place:
                         type: string
                         description: guid of the place
@@ -431,11 +406,11 @@ paths:
                         type: string
                         description: Text
                       media:
-                        description: guids of media
+                        description: uris of media
                         type: array
                         items:
                           type: string
-                          format: uuid
+                          format: uri
                       place:
                         type: string
                         description: guid of the place
