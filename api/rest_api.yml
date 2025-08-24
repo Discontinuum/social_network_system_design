@@ -71,7 +71,7 @@ paths:
         '500':
           description: Server Error
   
-  /post/{post_guid}:
+  /posts/{post_guid}:
     get:
       summary: Get a post
       tags:
@@ -140,7 +140,7 @@ paths:
           description: Post not found
         '500':
           description: Server Error
-  /post:
+  /posts:
     post:
       summary: Make a post
       tags:
@@ -188,7 +188,7 @@ paths:
         '500':
           description: Server Error
 
-  /post/comments/{post_guid}:
+  /posts/comments/{post_guid}:
     get:
       summary: Get a post's comments
       tags:
@@ -234,7 +234,7 @@ paths:
           description: Post not found
         '500':
           description: Server Error
-  /comment:
+  /comments:
     post:
       summary: Make a comment
       tags:
@@ -341,7 +341,7 @@ paths:
         '500':
           description: Server Error  
 
-  /place:
+  /places:
     get:
       summary: Get places sorted by popularity
       tags:
@@ -386,7 +386,7 @@ paths:
         '500':
           description: Server Error            
           
-  /place/{place_guid}:
+  /places/{place_guid}:
     get:
       summary: Fetch posts for this place
       tags:
@@ -451,7 +451,7 @@ paths:
         '500':
           description: Server Error          
           
-  /post/reacts/{post_guid}:
+  /posts/reacts/{post_guid}:
     get:
       summary: Get a post's reacts
       tags:
@@ -492,7 +492,7 @@ paths:
           description: Post not found
         '500':
           description: Server Error
-  /react:
+  /reactions:
     post:
       summary: Make a react
       tags:
@@ -521,7 +521,7 @@ paths:
         '500':
           description: Server Error 
   
-  /subscription:
+  /subscriptions:
     post:
       summary: Subscribe to user's posts
       tags:
@@ -547,7 +547,7 @@ paths:
         '500':
           description: Server Error
         
-  /subscription/{user_guid}:
+  /subscriptions/{user_guid}:
     delete:
       summary: Unsubscribe to user's posts
       tags:
