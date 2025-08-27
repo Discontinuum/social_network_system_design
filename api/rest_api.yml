@@ -1,0 +1,574 @@
+openapi: 3.0.4
+info:
+  title: Social Network System Design
+  description: API for the System Design course social network
+  version: 1.0.12
+
+
+tags:
+  - name: post
+  - name: media
+  - name: feed
+  - name: place
+  - name: comment
+  - name: react
+  - name: user
+    description: Operations about user
+paths:
+  /media:
+    post:
+      summary: Post a photo
+      tags:
+        - media
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: OK, return guid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uri:
+                    type: string
+                    description: uri of the photo in the storage
+                    format: uri
+                required:
+                  - uri
+        '413':
+          description: Photo is too large (more than 1 Mb)
+        '500':
+          description: Server Error
+  
+  /posts/{post_guid}:
+    get:
+      summary: Get a post
+      tags:
+        - post
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of post to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  guid:
+                    type: string
+                    description: guid of the post
+                    format: uuid
+                  author:
+                    type: string
+                    description: author's guid
+                    format: uuid
+                  text:
+                    type: string
+                    description: Text
+                  media:
+                    description: uris of media
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                  place:
+                    type: string
+                    description: guid of the place
+                    format: uuid
+                required:
+                  - guid
+                  - author
+                  - text
+        '404':
+          description: Post not found
+        '500':
+          description: Server Error
+    delete:
+      summary: Delete a post
+      tags:
+        - post
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of photo to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Post not found
+        '500':
+          description: Server Error
+  /posts:
+    post:
+      summary: Make a post
+      tags:
+        - post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  text:
+                    type: string
+                    description: Text
+                  media:
+                    description: uris of media
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                  place:
+                    type: string
+                    description: guid of the place
+                    format: uuid
+              required:
+                - text
+      responses:
+        '200':
+          description: OK, return guid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  guid:
+                    type: string
+                    description: guid of the post
+                    format: uuid
+                required:
+                  - guid
+        '404':
+          description: Place or media not found
+        '413':
+          description: Text is too long
+        '500':
+          description: Server Error
+
+  /posts/comments/{post_guid}:
+    get:
+      summary: Get a post's comments
+      tags:
+        - post
+        - comment
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: offset
+          in: query
+          description: from which comment to begin
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: how many comments to fetch
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        author:
+                          type: string
+                          description: author's guid
+                          format: uuid
+                        guid:
+                          type: string
+                          format: uuid
+                          description: guid of comment
+                        comment:
+                          type: string
+                          description: text of comment
+                      required:
+                        - guid
+                        - text
+                        - author
+        '401':
+          description: Incorrect offset or length
+        '404':
+          description: Post not found
+        '500':
+          description: Server Error
+  /posts/comments/{post_guid}:
+    post:
+      summary: Make a comment
+      tags:
+        - comment
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  comment:
+                    type: string
+                    description: text of comment
+              required:
+                - comment
+      responses:
+        '200':
+          description: OK, return guid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  guid:
+                    type: string
+                    description: guid of the comment
+                    format: uuid
+                required:
+                  - guid
+        '404':
+          description: Post not found
+        '413':
+          description: Text is too large
+        '500':
+          description: Server Error
+          
+  /feed/{user_guid}:
+    get:
+      summary: Fetch feed for user
+      tags:
+        - feed
+      parameters:
+        - name: user_guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: offset
+          in: query
+          description: from which post to begin
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: how many posts to fetch
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    type: object
+                    properties:
+                      guid:
+                        type: string
+                        description: guid of the post
+                        format: uuid
+                      author:
+                        type: string
+                        description: author's guid
+                        format: uuid
+                      text:
+                        type: string
+                        description: Text
+                      media:
+                        description: uris of media
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                      place:
+                        type: string
+                        description: guid of the place
+                        format: uuid
+                    required:
+                      - guid
+                      - author
+                      - text
+        '401':
+          description: Incorrect offset or length
+        '404':
+          description: User not found
+        '500':
+          description: Server Error  
+
+  /places:
+    get:
+      summary: Get places sorted by popularity
+      tags:
+        - place
+      parameters:
+        - name: offset
+          in: query
+          description: from which place to begin
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: how many places to fetch
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    type: object
+                    properties:
+                      guid:
+                        type: string
+                        description: guid of the place
+                        format: uuid
+                      name:
+                        type: string
+                        description: name of the place
+                        format: uuid
+                      posts:
+                        type: integer
+                        description: how many posts about this place
+                    required:
+                      - guid
+                      - name
+        '401':
+          description: Incorrect offset or length
+        '500':
+          description: Server Error            
+          
+  /places/{place_guid}:
+    get:
+      summary: Fetch posts for this place
+      tags:
+        - place
+      parameters:
+        - name: place_guid
+          in: path
+          description: ID of place
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: offset
+          in: query
+          description: from which post to begin
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: how many posts to fetch
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    type: object
+                    properties:
+                      guid:
+                        type: string
+                        description: guid of the post
+                        format: uuid
+                      author:
+                        type: string
+                        description: author's guid
+                        format: uuid
+                      text:
+                        type: string
+                        description: Text
+                      media:
+                        description: uris of media
+                        type: array
+                        items:
+                          type: string
+                          format: uri
+                      place:
+                        type: string
+                        description: guid of the place
+                        format: uuid
+                    required:
+                      - guid
+                      - author
+                      - text
+        '401':
+          description: Incorrect offset or length
+        '404':
+          description: Place not found
+        '500':
+          description: Server Error          
+          
+  /posts/reactions/{post_guid}:
+    get:
+      summary: Get a post's reactions
+      tags:
+        - post
+        - react
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid        
+        - name: offset
+          in: query
+          description: from which comment to begin
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: how many comments to fetch
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reacts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        react_guid:
+                          type: string
+                          format: uuid
+                          description: guid of react
+                        count:
+                          type: integer
+                          description: how many time this react was used
+                      required:
+                        - react_guid
+                        - count
+        '401':
+          description: Incorrect offset or length
+        '404':
+          description: Post not found
+        '500':
+          description: Server Error
+  /posts/reactions/{post_guid}:
+    post:
+      summary: Make a react
+      tags:
+        - react
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid  
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  react_guid:
+                    type: string
+                    format: uuid
+              required:
+                - react_guid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Post not found
+        '500':
+          description: Server Error 
+  
+  /subscriptions:
+    post:
+      summary: Subscribe to user's posts
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  user_guid:
+                    type: string
+                    description: User we want to follow
+                    format: uuid
+              required:
+                - user_guid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: User not found
+        '500':
+          description: Server Error
+        
+  /subscriptions/{user_guid}:
+    delete:
+      summary: Unsubscribe to user's posts
+      tags:
+        - user
+      parameters:
+        - name: user_guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: User not found
+        '500':
+          description: Server Error
