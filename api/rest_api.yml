@@ -221,11 +221,19 @@ paths:
           description: Post not found
         '500':
           description: Server Error
-  /comments:
+  /posts/comments/{post_guid}:
     post:
       summary: Make a comment
       tags:
         - comment
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -236,13 +244,8 @@ paths:
                   comment:
                     type: string
                     description: text of comment
-                  post_guid:
-                    type: string
-                    description: which post we comment
-                    format: uuid
               required:
                 - comment
-                - post_guid
       responses:
         '200':
           description: OK, return guid
@@ -491,11 +494,19 @@ paths:
           description: Post not found
         '500':
           description: Server Error
-  /reactions:
+  /posts/reactions/{post_guid}:
     post:
       summary: Make a react
       tags:
         - react
+      parameters:
+        - name: post_guid
+          in: path
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid  
       requestBody:
         required: true
         content:
@@ -506,12 +517,8 @@ paths:
                   react_guid:
                     type: string
                     format: uuid
-                  post_guid:
-                    type: string
-                    format: uuid
               required:
                 - react_guid
-                - post_guid
       responses:
         '200':
           description: OK
