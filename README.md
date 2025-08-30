@@ -82,3 +82,52 @@ Traffic (write meta) = RPS (write) * post size = 1,2 reqs/sec * 1136B ≈ 1,3 Kb
 Информация о реакции: код реакции, id поста. Если представить их двумя GUID'ами (что может быть и избыточно), получим 32 B на реакцию
 
     Traffic (write) = RPS(write) * react size = 1157 * 32B ≈ 36,2 Kb/sec
+    
+# Оценка дисков
+
+По каждой системе рассчитаем capacity за год, а также необходимые диски по throughput и iops.
+
+## Посты: медиа-данные
+
+Capacity = Traffic (write media) * 86400 * 365 = 6 Mb/sec * (86400 * 365) sec/year = 189216000 Mb / year ≈ 180,5 Tb/year. По годовой capacity требуется: 6 HDD, 2 SATA SSD максимального объёма, 6-7 nVME SSD. 
+
+Traffic\_per\_second ≈ 11 Gb/sec: по дискам потребует 112 HDD, 23 SATA SSD, 4 nVME SSD
+
+IOPS оценим как rps(write) + rps(read feed) * 10 posts * 5 media = 1,2 + 231 * 50 ≈ 11551. По дискам это потребует 116 HDD, 12 SATA SSD, 2 nVME SSD.
+
+Оптимальным решением по итогу кажется 7 SSD nVME, либо же 12 SATA SSD. HDD требуется слишком много (сотни) для требований по трафику и iops.
+## Посты: мета-данные
+
+Capacity = Traffic (write meta)  * 86400 * 365 = 1,3  * 86400 * 365 Kb/year ≈ 39,1 Gb/year
+
+Traffic\_per\_second = 2,5 Mb/sec + 1,3 Kb/sec ≈ 3 Mb/sec
+
+IOPS оценка прежняя: rps(write) + rps(read feed) * 10 posts * 5 media = 1,2 + 231 * 50 ≈ 11551. По дискам это потребует 116 HDD, 12 SATA SSD, 2 nVME SSD.
+
+Вывод: 2 nVME SSD из-за требований по IOPS.
+
+## Комментарии
+
+Capacity = Traffic * 86400 * 365 = 26 Kb/sec  * (86400 * 365) sec/year  = 819936000 Kb/year ≈ 782 Gb/year
+
+Traffic 26 Kb/sec, RPS = 52. Хватит одного HDD.
+
+## Реакции
+
+Capacity = Traffic (write) * 86400 * 365 = 36,2 * (86400 * 365)  Kb/year ≈ 1Tb/year.
+
+RPS = 1157. Traffic ≈ 36,2 Kb/sec.
+
+По IOPS RPS получаем: 11 HDD, 1-2 SATA SSD, 1 nVME SSD.
+
+Вывод: берём 1-2 SATA SSD либо 1 nVME SSD, смотря что дешевле.
+
+## Резюме
+
+Медиа-данные постов (видимо S3 хранилище): 7 SSD nVME, либо же 12 SATA SSD
+
+Мета данные постов: 2 nVME SSD
+
+Комментарии: 1 HDD.
+
+Реакции: 1-2 SATA SSD либо 1 nVME SSD
