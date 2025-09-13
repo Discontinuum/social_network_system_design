@@ -1,3 +1,5 @@
+// Асинхронная репликация, мастер-слейв, RF 3
+
 Table posts {
   guid guid [primary key]
   created_at timestamp
