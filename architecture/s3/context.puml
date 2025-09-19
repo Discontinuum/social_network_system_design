@@ -1,0 +1,27 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+Container(apiGateway, "API Gateway", "Go", "Handles authorization")
+
+System_Boundary(storageSystem, "S3 storage") {
+    Container(s3, "S3", "", "Manipulates media storage")
+    Container(s3_gc, "S3 GC", "", "Remove unused media")
+    Container(s3_cold_data, "S3 Data Freezer", "", "Migrating older data to HDD")
+}
+
+Container(coreSystem, "Core System", "", "Core", $tags="webApp")
+
+
+ContainerQueue(postsQueue, "Events queue", "RabbitMQ, maybe Kafka", "Message queue for new posts")
+
+Rel(user, apiGateway, "Social network API calls", "REST")
+
+Rel(apiGateway, coreSystem, "Social Network API")
+Rel(apiGateway,s3, "Upload media")
+Rel(user,s3, "Get media")
+Rel(coreSystem,postsQueue, "Notifying about a new post")
+Rel(postsQueue,s3_gc, "Notify that a new post appeared, so all its media should be kept")
+Rel(s3_gc,s3, "Deleting all media that haven't been used in any post in 24 hours")
+Rel(s3_cold_data,s3, "Migrating older data uploaded for a while on HDD for cold storage")
+@enduml
