@@ -4,11 +4,8 @@
 Person(user, "User")
 Container(apiGateway, "API Gateway", "Go", "Handles authorization")
 
-System_Boundary(storageSystem, "S3 storage") {
-    Container(s3, "S3", "", "Manipulates media storage")
-    Container(s3_gc, "S3 GC", "", "Remove unused media")
-    Container(s3_cold_data, "S3 Data Freezer", "", "Migrating older data to HDD")
-}
+Container(s3, "S3", "", "Manipulates media storage")
+
 
 System_Boundary(coreSystem, "Core social network system") {
     Container(postService, "Post Service", "Go", "Handles posts and places", $tags="webApp")
@@ -38,7 +35,7 @@ Rel(postService, postsDatabase, "Posts/places adding/deleting/search")
 Rel(feedService, feedCache, "Creating/fetching feed")
 Rel(postService,postsQueue, "Notifying about a new post")
 Rel(postsQueue,feedService, "Get notifications about new post")
-Rel(postsQueue,s3_gc, "Notify that a new post appeared, so all its media should be kept")
+Rel(postsQueue,s3, "Notify that a new post appeared, so all its media should be kept")
 Rel(feedService, userService, "User follow status")
 Rel(userService, userDatabase, "")
 Rel(reactService, reactDatabase, "")
