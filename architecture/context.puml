@@ -1,0 +1,10 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+Container(coreSystem, "Core social network system", "Software system", "Handles most API calls")
+Container(storageSystem, "Storage system", "S3 storage", "Stores images and returns them when accessed using a URI")
+
+Rel(user, coreSystem, "Queries API")
+Rel(user, storageSystem, "Downloads media (images)")
+@enduml

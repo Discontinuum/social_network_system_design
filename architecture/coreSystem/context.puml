@@ -1,0 +1,43 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+Container(apiGateway, "API Gateway", "Go", "Handles authorization")
+
+Container(s3, "S3", "", "Manipulates media storage")
+
+
+System_Boundary(coreSystem, "Core social network system") {
+    Container(postService, "Post Service", "Go", "Handles posts and places", $tags="webApp")
+    ContainerDb(postsDatabase, "Posts&places database", "PgSQL", "Stores posts metadata and places",  $tags="db")
+    Container(feedService, "Feed Service", "Go", "Handles getting feed: we build feed if we don't have one in cache and maintain it until it's kicked out from cache", $tags="webApp")
+    ContainerDb(feedCache, "Feed cache", "Tarantool", "Stores prepared feeds of users, LFU, remove feeds of users that don't access it for some TTL",  $tags="db")
+    Container(reactService, "Reaction Service", "Go", "Handles adding/deleting reactions", $tags="webApp")
+    ContainerDb(reactDatabase, "Reactions database", "PgSQL", "Reactions database",  $tags="db")
+    Container(commentsService, "Comment Service", "Go", "Handles adding/deleting comments", $tags="webApp")
+    ContainerDb(commentsDatabase, "Comments database", "PgSQL", "Comments database",  $tags="db")
+    Container(userService, "User Relations Service", "Go", "Manipulates user follows", $tags="webApp")
+    ContainerDb(userDatabase, "User database", "PgSQL", "Stores user data and follow relations",  $tags="db")
+}
+
+ContainerQueue(postsQueue, "Events queue", "RabbitMQ, maybe Kafka", "Message queue for new posts")
+
+Rel(user, apiGateway, "Social network API calls", "REST")
+
+Rel(apiGateway,postService, "Adding/getting/deleting posts, searching posts/places")
+Rel(apiGateway,feedService, "Getting feed")
+Rel(apiGateway,reactService, "Reactions APIs")
+Rel(apiGateway,commentsService, "Comments APIs")
+Rel(apiGateway,s3, "Upload media")
+Rel(user,s3, "Get media")
+Rel(apiGateway,userService, "User follow/unfollow/info APIs")
+Rel(postService, postsDatabase, "Posts/places adding/deleting/search")
+Rel(feedService, feedCache, "Creating/fetching feed")
+Rel(postService,postsQueue, "Notifying about a new post")
+Rel(postsQueue,feedService, "Get notifications about new post")
+Rel(postsQueue,s3, "Notify that a new post appeared, so all its media should be kept")
+Rel(feedService, userService, "User follow status")
+Rel(userService, userDatabase, "")
+Rel(reactService, reactDatabase, "")
+Rel(commentsService, commentsDatabase, "")
+@enduml
